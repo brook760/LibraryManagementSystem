@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE hibernate-configuration PUBLIC  
+   "-//Hibernate/Hibernate Configuration DTD 5.3//EN" 
+   "http://hibernate.org/dtd/hibernate-configuration-3.0.dtd">
+<!-- Version 8 MySQL hiberante-cfg.xml example for Hibernate 5 -->
+<hibernate-configuration>
+  <session-factory>
+  	<!-- DBC Database Connection Settings-->
+    <property name="connection.driver_class">com.mysql.cj.jdbc.Driver</property>
+    <property name="connection.url">jdbc:mysql://localhost:3306/librarymanagementsystem?useSSl=false&amp;serverTimezone=UTC</property>
+    <property name="connection.username">root</property>
+    <property name="connection.password">root</property>   
+   
+    <!-- SQL Dialect -->
+    <property name="hibernate.dialect">org.hibernate.dialect.MySQL8Dialect</property>
+    
+    <!-- Automatically create/update tables -->
+    <property name="hibernate.hbm2ddl.auto">update</property>
+    
+    <!-- Echo all executed SQL to std out -->
+    <property name="hibernate.show_sql">true</property>
+    <property name="hibernate.format_sql">true</property>
+    
+    <!-- JDBC Connection Pool (use built-in) -->
+    <property name="connection.pool_size">5</property>
+
+    <!-- List your annotated classes -->
+    <mapping class="com.Library.Entity.Book"/>
+    <mapping class="com.Library.Entity.Author"/>
+    <mapping class="com.Library.Entity.Category"/>
+    <mapping class="com.Library.Entity.Publisher"/>
+    <mapping class ="com.Library.Entity.Student"/>
+    <mapping class="com.Library.Entity.User"/>
+    
+   </session-factory>
+</hibernate-configuration>
