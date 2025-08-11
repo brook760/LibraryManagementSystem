@@ -14,68 +14,112 @@ import com.Library.Util.HibernateUtil;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.beans.PropertyVetoException;
 import java.util.*;
 
-public class AddBookForm extends JFrame {
-    /**
-	 * 
-	 */
+public class AddBookForm extends JInternalFrame {
+
 	private static final long serialVersionUID = 1L;
 
 	public AddBookForm() {
-        setTitle("Add New Book");
-        setSize(400, 350);
-        setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-        setLocationRelativeTo(null);
-        setLayout(new GridLayout(7, 2, 10, 10));
+		super("Add New Book", true, true, false, false); // title, resizable, closable, maximizable, iconifiable
+		try {
+			setMaximum(true);
+		} catch (PropertyVetoException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+        setSize(1045, 680);
+        setLayout(new BorderLayout());
+        
+        JLabel header = new JLabel("Add Book Form", JLabel.CENTER);
+        header.setFont(new Font("Segoe UI", Font.BOLD, 20));
+        add(header, BorderLayout.NORTH);
+        
+        JPanel formPanel = new JPanel(new GridBagLayout());
+        GridBagConstraints gbc = new GridBagConstraints();
+        gbc.insets = new Insets(5, 5, 5, 5);
+        gbc.fill = GridBagConstraints.HORIZONTAL;
+        gbc.anchor = GridBagConstraints.WEST;
 
-        add(new JLabel("Book Title:"));
-        JTextField titleField = new JTextField();
-        add(titleField);
+        JLabel titleLabel = new JLabel("Book Title:");
+        JTextField titleField = new JTextField(20);
+        
+        JLabel authorLabel = new JLabel("Author Name:");
+        JTextField authorField = new JTextField(20);
 
-        add(new JLabel("Author Name:"));
-        JTextField authorField = new JTextField();
-        add(authorField);
+        JLabel categoryLabel = new JLabel("Category:");
+        JTextField categoryField = new JTextField(20);
 
-        add(new JLabel("Category:"));
-        JTextField categoryField = new JTextField();
-        add(categoryField);
+        JLabel publisherLabel = new JLabel("Publisher:");
+        JTextField publisherField = new JTextField(20);
 
-        add(new JLabel("Publisher:"));
-        JTextField publisherField = new JTextField();
-        add(publisherField);
+        JLabel qtyLabel = new JLabel("Quantity:");
+        JTextField qtyField = new JTextField(20);
 
-        //add(new JLabel("ISBN:"));
-        //JTextField isbnField = new JTextField();
-        //add(isbnField);
+        // Row 0 - Book Title
+        gbc.gridx = 0;
+        gbc.gridy = 0;
+        formPanel.add(titleLabel, gbc);
+        gbc.gridx = 1;
+        formPanel.add(titleField, gbc);
 
-        add(new JLabel("Quantity:"));
-        JTextField qtyField = new JTextField();
-        add(qtyField);
+        // Row 1 - Author Name
+        gbc.gridx = 0;
+        gbc.gridy = 1;
+        formPanel.add(authorLabel, gbc);
+        gbc.gridx = 1;
+        formPanel.add(authorField, gbc);
 
+        // Row 2 - Category
+        gbc.gridx = 0;
+        gbc.gridy = 2;
+        formPanel.add(categoryLabel, gbc);
+        gbc.gridx = 1;
+        formPanel.add(categoryField, gbc);
+
+        // Row 3 - Publisher
+        gbc.gridx = 0;
+        gbc.gridy = 3;
+        formPanel.add(publisherLabel, gbc);
+        gbc.gridx = 1;
+        formPanel.add(publisherField, gbc);
+
+        // Row 4 - Quantity
+        gbc.gridx = 0;
+        gbc.gridy = 4;
+        formPanel.add(qtyLabel, gbc);
+        gbc.gridx = 1;
+        formPanel.add(qtyField, gbc);
+
+        add(formPanel, BorderLayout.CENTER);
+
+        JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
         JButton saveBtn = new JButton("Save");
         JButton cancelBtn = new JButton("Cancel");
-        add(saveBtn);
-        add(cancelBtn);
+        buttonPanel.add(saveBtn);
+        buttonPanel.add(cancelBtn);
 
-     // Save Button Action
+        add(buttonPanel, BorderLayout.SOUTH);
+
+        // Save Button Action
         saveBtn.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 try (Session session = HibernateUtil.getSessionFactory().openSession()) {
-                    Transaction tx =session.beginTransaction();
-                    
+                    Transaction tx = session.beginTransaction();
+
                     // --- Create Author ---
                     Author author = new Author();
                     author.setName(authorField.getText());
-                    
+
                     // --- Create Category ---
                     Category category = new Category();
                     category.setName(categoryField.getText());
-                    
+
                     // --- Create Publisher ---
                     Publisher publisher = new Publisher();
                     publisher.setName(publisherField.getText());
-                    
+
                     // --- Create Book ---
                     Book book = new Book();
                     book.setName(titleField.getText());
@@ -89,14 +133,14 @@ public class AddBookForm extends JFrame {
                     category.setBooks(Arrays.asList(book));
                     publisher.setBooks(Arrays.asList(book));
 
-                    //Save everything
+                    // Save everything
                     session.persist(author);
                     session.persist(category);
                     session.persist(publisher);
                     session.persist(book);
 
                     tx.commit();
-                    JOptionPane.showMessageDialog(null, "Book saved using BookRepo!");
+                    JOptionPane.showMessageDialog(null, "Book saved successfully!");
                     dispose();
                 } catch (Exception ex) {
                     ex.printStackTrace();
