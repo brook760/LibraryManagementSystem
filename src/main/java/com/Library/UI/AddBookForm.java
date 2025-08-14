@@ -22,25 +22,29 @@ public class AddBookForm extends JInternalFrame {
 	private static final long serialVersionUID = 1L;
 
 	public AddBookForm() {
-		super("Add New Book", true, true, false, false); // title, resizable, closable, maximizable, iconifiable
-		try {
-			setMaximum(true);
-		} catch (PropertyVetoException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+		setDefaultCloseOperation(JInternalFrame.DISPOSE_ON_CLOSE);
+
+		// Size will get overridden when maximizing
         setSize(1045, 680);
-        setLayout(new BorderLayout());
+        setLayout(new BorderLayout(15,15));
         
-        JLabel header = new JLabel("Add Book Form", JLabel.CENTER);
-        header.setFont(new Font("Segoe UI", Font.BOLD, 20));
-        add(header, BorderLayout.NORTH);
+        // ====== HEADER ======
+        JPanel headerPanel = new JPanel(new BorderLayout());
+        headerPanel.setBackground(new Color(123, 31, 162));
+        JLabel header = new JLabel("Add Book", JLabel.CENTER);
+        header.setForeground(Color.WHITE);
+        header.setFont(new Font("Segoe UI", Font.BOLD, 28));
+        headerPanel.add(header, BorderLayout.CENTER);
+        add(headerPanel, BorderLayout.NORTH);
         
+     // ====== FORM ======
         JPanel formPanel = new JPanel(new GridBagLayout());
+        formPanel.setBorder(BorderFactory.createEmptyBorder(30, 50, 30, 50));
+        formPanel.setBackground(Color.WHITE);
         GridBagConstraints gbc = new GridBagConstraints();
-        gbc.insets = new Insets(5, 5, 5, 5);
+        gbc.insets = new Insets(10, 10, 10, 10);
         gbc.fill = GridBagConstraints.HORIZONTAL;
-        gbc.anchor = GridBagConstraints.WEST;
+
 
         JLabel titleLabel = new JLabel("Book Title:");
         JTextField titleField = new JTextField(20);
@@ -94,12 +98,22 @@ public class AddBookForm extends JInternalFrame {
 
         add(formPanel, BorderLayout.CENTER);
 
+        // ====== BUTTON PANEL ======
         JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+        buttonPanel.setBorder(BorderFactory.createEmptyBorder(10, 20, 10, 20));
+        
         JButton saveBtn = new JButton("Save");
+        saveBtn.setBackground(new Color(76, 175, 80));
+        saveBtn.setForeground(Color.WHITE);
+        saveBtn.setFont(new Font("Segoe UI", Font.BOLD, 14));
+        
         JButton cancelBtn = new JButton("Cancel");
+        cancelBtn.setBackground(new Color(244, 67, 54));
+        cancelBtn.setForeground(Color.WHITE);
+        cancelBtn.setFont(new Font("Segoe UI", Font.BOLD, 14));
+        
         buttonPanel.add(saveBtn);
         buttonPanel.add(cancelBtn);
-
         add(buttonPanel, BorderLayout.SOUTH);
 
         // Save Button Action
@@ -151,6 +165,15 @@ public class AddBookForm extends JInternalFrame {
 
         cancelBtn.addActionListener(e -> dispose());
 
+     // ====== MAXIMIZE AFTER LOADED ======
+        SwingUtilities.invokeLater(() -> {
+            try {
+                setMaximum(true);
+            } catch (PropertyVetoException ex) {
+                ex.printStackTrace();
+            }
+        });
+        
         setVisible(true);
     }
 }

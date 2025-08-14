@@ -31,6 +31,7 @@
     <mapping class="com.Library.Entity.Publisher"/>
     <mapping class ="com.Library.Entity.Student"/>
     <mapping class="com.Library.Entity.User"/>
+    <mapping class="com.Library.Entity.Borrowing"/>
     
    </session-factory>
 </hibernate-configuration>

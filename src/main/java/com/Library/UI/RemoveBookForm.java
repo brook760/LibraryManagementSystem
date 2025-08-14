@@ -9,8 +9,9 @@ import com.Library.Entity.Book;
 import com.Library.Util.HibernateUtil;
 
 import java.awt.*;
+import java.beans.PropertyVetoException;
 
-public class RemoveBookForm extends JFrame {
+public class RemoveBookForm extends JInternalFrame  {
     /**
 	 * 
 	 */
@@ -18,27 +19,57 @@ public class RemoveBookForm extends JFrame {
 
 	@SuppressWarnings("deprecation")
 	public RemoveBookForm() {
-        setTitle("Remove Book");
-        setSize(300, 150);
-        setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-        setLocationRelativeTo(null);
-        setLayout(new GridLayout(3, 1, 10, 10));
+		
+		setDefaultCloseOperation(JInternalFrame.DISPOSE_ON_CLOSE);
+        setLayout(new BorderLayout(15, 15));
+        
+        // ===== HEADER =====
+        JPanel headerPanel = new JPanel(new BorderLayout());
+        headerPanel.setBackground(new Color(123, 31, 162)); // Purple like dashboard
+        JLabel header = new JLabel("❌ Remove Book", JLabel.CENTER);
+        header.setForeground(Color.WHITE);
+        header.setFont(new Font("Segoe UI", Font.BOLD, 26));
+        headerPanel.add(header, BorderLayout.CENTER);
+        add(headerPanel, BorderLayout.NORTH);
+        
+        // ===== FORM PANEL =====
+        JPanel formPanel = new JPanel(new GridBagLayout());
+        formPanel.setBackground(Color.WHITE);
+        formPanel.setBorder(BorderFactory.createEmptyBorder(40, 30, 40, 30));
+
+        GridBagConstraints gbc = new GridBagConstraints();
+        gbc.insets = new Insets(15, 15, 15, 15);
+        gbc.fill = GridBagConstraints.HORIZONTAL;
 
         // Label + Field
-        JPanel inputPanel = new JPanel(new FlowLayout());
-        JLabel idLabel = new JLabel("Enter Book ID to remove:");
-        JTextField idField = new JTextField(10);
-        inputPanel.add(idLabel);
-        inputPanel.add(idField);
-        add(inputPanel);
-
-        // Button Panel
-        JPanel buttonPanel = new JPanel(new FlowLayout());
+        JLabel idLabel = new JLabel("Enter Book name to remove:");
+        JTextField idField = new JTextField(20);
+        
+        gbc.gridx = 0; gbc.gridy = 0;
+        formPanel.add(idLabel, gbc);
+        gbc.gridx = 1;
+        formPanel.add(idField, gbc);
+        
+        add(formPanel, BorderLayout.CENTER);
+        
+        
+        // ===== BUTTON PANEL =====
+        JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+        buttonPanel.setBorder(BorderFactory.createEmptyBorder(10, 20, 10, 20));
+        
         JButton removeBtn = new JButton("Remove");
+        removeBtn.setBackground(new Color(244, 67, 54)); // red
+        removeBtn.setForeground(Color.WHITE);
+        removeBtn.setFont(new Font("Segoe UI", Font.BOLD, 14));
+        
         JButton cancelBtn = new JButton("Cancel");
+        cancelBtn.setBackground(new Color(158, 158, 158)); // grey
+        cancelBtn.setForeground(Color.WHITE);
+        cancelBtn.setFont(new Font("Segoe UI", Font.BOLD, 14));
+
         buttonPanel.add(removeBtn);
         buttonPanel.add(cancelBtn);
-        add(buttonPanel);
+        add(buttonPanel, BorderLayout.SOUTH);
 
      	// Cancel action
         cancelBtn.addActionListener(e -> dispose());
@@ -84,6 +115,15 @@ public class RemoveBookForm extends JFrame {
                     JOptionPane.showMessageDialog(this, "Error: " + ex.getMessage());
                 }
             });
+        
+     // ===== MAXIMIZE AFTER ADDED =====
+        SwingUtilities.invokeLater(() -> {
+            try {
+                setMaximum(true);
+            } catch (PropertyVetoException ex) {
+                ex.printStackTrace();
+            }
+        });
         setVisible(true);
     }
 }

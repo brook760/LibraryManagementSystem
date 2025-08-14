@@ -1,6 +1,11 @@
 package com.Library.UI;
 
 import javax.swing.*;
+
+import org.hibernate.Session;
+
+import com.Library.Util.HibernateUtil;
+
 import java.awt.*;
 
 public class Dashboard extends JFrame {
@@ -10,6 +15,7 @@ public class Dashboard extends JFrame {
 	 */
 	private static final long serialVersionUID = 1L;
 	private JDesktopPane desktopPane; //Where forms/cards are shown
+	private JInternalFrame homeFrame;
 
     public Dashboard() {
     	
@@ -24,6 +30,9 @@ public class Dashboard extends JFrame {
     	
     	// ----- Main Layout -----
         setLayout(new BorderLayout());
+        
+        homeFrame = new JInternalFrame("Dashboard Overview", true, true, true, false);
+        //homeFrame.setVisible(true);
 	    
         desktopPane = new JDesktopPane();
         getContentPane().add(desktopPane); // fill the frame
@@ -34,15 +43,48 @@ public class Dashboard extends JFrame {
         sidebar.setLayout(new BoxLayout(sidebar, BoxLayout.Y_AXIS));
         sidebar.setPreferredSize(new Dimension(220, getHeight()));
         
-        JLabel title = new JLabel("Dashboard");
-        title.setFont(new Font("Segoe UI", Font.BOLD, 20));
+        String booksCount = getCountFromEntity("Book");
+        String studentsCount = getCountFromEntity("Student");
+        // For borrowed count, if you have an entity tracking borrow records, replace "Borrow" below
+        String borrowedCount = getTotalBorrowedQuantity();
+        
+        // Home Panel setup
+        JPanel homePanel = new JPanel();
+        homePanel.setLayout(new GridLayout(1, 3, 40, 40));
+        homePanel.setBackground(new Color(245, 245, 255));
+        homePanel.setBorder(BorderFactory.createEmptyBorder(40, 40, 40, 40));
+        
+        homePanel.add(createStatCard("Books", booksCount));
+        homePanel.add(createStatCard("Students", studentsCount));
+        homePanel.add(createStatCard("Borrowed", borrowedCount));
+
+        
+        JButton title = new JButton("Dashboard");
+        title.setFont(new Font("Segoe UI", Font.BOLD, 16));
+        title.setMaximumSize(new Dimension(Integer.MAX_VALUE, 45));
+        title.setBackground(new Color(145, 85, 220));
         title.setForeground(Color.WHITE);
+        title.setFocusPainted(false);
         title.setAlignmentX(Component.CENTER_ALIGNMENT);
-        title.setBorder(BorderFactory.createEmptyBorder(25,0,30,0));
+        title.setBorder(BorderFactory.createEmptyBorder(10, 25, 10, 25));
+        
         sidebar.add(title);
         
-        //Buttons
-        JButton addBookBtn = new JButton("➕ Add Book");
+        title.addActionListener(e -> {
+        	desktopPane.add(homeFrame, JDesktopPane.DEFAULT_LAYER);
+
+        	try {
+        		homeFrame.setMaximum(true);
+                homeFrame.setSelected(true);
+            } catch (java.beans.PropertyVetoException ex) {
+                ex.printStackTrace();
+            }
+        });
+
+        add(sidebar, BorderLayout.WEST);
+ 
+        //Add Book Button
+        JButton addBookBtn = new JButton("Add Book");
         addBookBtn.setMaximumSize(new Dimension(Integer.MAX_VALUE, 45));
         addBookBtn.setFont(new Font("Segoe UI", Font.PLAIN, 16));
         addBookBtn.setBackground(new Color(145, 85, 220));
@@ -53,28 +95,18 @@ public class Dashboard extends JFrame {
         
         addBookBtn.addActionListener(e -> {
         	AddBookForm addBook= new AddBookForm();
+        	
         	desktopPane.add(addBook);
+        	addBook.setVisible(true);
         	try {
                 addBook.setSelected(true);
             } catch (java.beans.PropertyVetoException ex) {
                 ex.printStackTrace();
             }
+        	
         });
-        sidebar.add(addBookBtn);
-
-        add(sidebar, BorderLayout.WEST);
-
-
-
-        // Home Panel
-        JPanel homePanel = new JPanel();
-        homePanel.setLayout(new GridLayout(1, 3, 40, 40));
-        homePanel.setBackground(new Color(245, 245, 255));
-        homePanel.setBorder(BorderFactory.createEmptyBorder(40, 40, 40, 40));
-        homePanel.add(createStatCard("Books", "245"));
-        homePanel.add(createStatCard("Students", "125"));
-        homePanel.add(createStatCard("Borrowed", "89"));
         
+        sidebar.add(addBookBtn);
         
         //Borrow Book Button
         JButton btnBorrowBook = new JButton("Borrow Book");
@@ -88,56 +120,126 @@ public class Dashboard extends JFrame {
 
         // When clicked, open AddBookFrame
         btnBorrowBook.addActionListener(e -> {
-        	BorrowBookForm addBookWindow = new BorrowBookForm();
-        	addBookWindow.setVisible(true);
+        	BorrowBookForm BorrowBook = new BorrowBookForm();
+        	
+        	desktopPane.add(BorrowBook);
+        	try {
+        		BorrowBook.setSelected(true);
+            } catch (java.beans.PropertyVetoException ex) {
+                ex.printStackTrace();
+            }
+        	
         });
-
+        
         sidebar.add(btnBorrowBook);
         
+        //View Book Button
+        JButton viewBooksForm = new JButton("View Book");
+        viewBooksForm.setMaximumSize(new Dimension(Integer.MAX_VALUE, 45));
+        viewBooksForm.setFont(new Font("Segoe UI", Font.PLAIN, 16));
+        viewBooksForm.setBackground(new Color(145, 85, 220));
+        viewBooksForm.setForeground(Color.WHITE);
+        viewBooksForm.setFocusPainted(false);
+        viewBooksForm.setBorder(BorderFactory.createEmptyBorder(10, 25, 10, 25));
+        viewBooksForm.setAlignmentX(Component.CENTER_ALIGNMENT);
+
+
+        // When clicked, open AddBookFrame
+        viewBooksForm.addActionListener(e -> {
+        	ViewBooksForm viewBooks = new ViewBooksForm();
+        	
+        	desktopPane.add(viewBooks);
+        	try {
+        		viewBooks.setSelected(true);
+            } catch (java.beans.PropertyVetoException ex) {
+                ex.printStackTrace();
+            }
+        	
+        });
+
+        sidebar.add(viewBooksForm);
+
+        //View Book Button
+        JButton removeBookFrom = new JButton("View Book");
+        removeBookFrom.setMaximumSize(new Dimension(Integer.MAX_VALUE, 45));
+        removeBookFrom.setFont(new Font("Segoe UI", Font.PLAIN, 16));
+        removeBookFrom.setBackground(new Color(145, 85, 220));
+        removeBookFrom.setForeground(Color.WHITE);
+        removeBookFrom.setFocusPainted(false);
+        removeBookFrom.setBorder(BorderFactory.createEmptyBorder(10, 25, 10, 25));
+        removeBookFrom.setAlignmentX(Component.CENTER_ALIGNMENT);
+
+
+        // When clicked, open AddBookFrame
+        removeBookFrom.addActionListener(e -> {
+        	RemoveBookForm removeBooks = new RemoveBookForm();
+        	
+        	desktopPane.add(removeBooks);
+        	try {
+        		removeBooks.setSelected(true);
+            } catch (java.beans.PropertyVetoException ex) {
+                ex.printStackTrace();
+            }
+        	
+        });
+
+        sidebar.add(removeBookFrom);
+        
+        //Add Student Button
+        JButton addStudentForm = new JButton("Add Student");
+        addStudentForm.setMaximumSize(new Dimension(Integer.MAX_VALUE, 45));
+        addStudentForm.setFont(new Font("Segoe UI", Font.PLAIN, 16));
+        addStudentForm.setBackground(new Color(145, 85, 220));
+        addStudentForm.setForeground(Color.WHITE);
+        addStudentForm.setFocusPainted(false);
+        addStudentForm.setBorder(BorderFactory.createEmptyBorder(10, 25, 10, 25));
+        addStudentForm.setAlignmentX(Component.CENTER_ALIGNMENT);
+
+
+        // When clicked, open AddBookFrame
+        addStudentForm.addActionListener(e -> {
+        	AddStudentForm AddStudent = new AddStudentForm();
+        	
+        	desktopPane.add(AddStudent);
+        	AddStudent.setVisible(true);
+        	try {
+        		AddStudent.setSelected(true);
+            } catch (java.beans.PropertyVetoException ex) {
+                ex.printStackTrace();
+            }
+        	
+        });
+
+        sidebar.add(addStudentForm);
+        
+        //Manage Student Button
+        JButton manageStudentForm = new JButton("Add Student");
+        manageStudentForm.setMaximumSize(new Dimension(Integer.MAX_VALUE, 45));
+        manageStudentForm.setFont(new Font("Segoe UI", Font.PLAIN, 16));
+        manageStudentForm.setBackground(new Color(145, 85, 220));
+        manageStudentForm.setForeground(Color.WHITE);
+        manageStudentForm.setFocusPainted(false);
+        manageStudentForm.setBorder(BorderFactory.createEmptyBorder(10, 25, 10, 25));
+        manageStudentForm.setAlignmentX(Component.CENTER_ALIGNMENT);
+
+
+        // When clicked, open AddBookFrame
+        manageStudentForm.addActionListener(e -> {
+        	ManageStudentsFrom editStudent = new ManageStudentsFrom();
+        	desktopPane.add(editStudent);
+        	try {
+        		editStudent.setSelected(true);
+            } catch (java.beans.PropertyVetoException ex) {
+                ex.printStackTrace();
+            }
+
+        });
+
+        sidebar.add(manageStudentForm);
+        
     }
- private void openInternalFrame(JInternalFrame frame) {
-	 desktopPane.add(frame);
-	    frame.setVisible(true);
-	    try {
-	        frame.setSelected(true);
-	    } catch (java.beans.PropertyVetoException e) {
-	        e.printStackTrace();
-	    }
-	}
-	// Reusable inner feature panel with "Back to Dash board"
-   /* class FeaturePanel extends JPanel {
-        public FeaturePanel(String title, CardLayout cl, JPanel container) {
-            setBackground(new Color(245, 245, 255));
-            setLayout(new BorderLayout());
-
-            JLabel label = new JLabel(title, JLabel.CENTER);
-            label.setFont(new Font("Segoe UI", Font.BOLD, 28));
-
-            JButton backBtn = new JButton("← Back to Dashboard");
-            backBtn.setFont(new Font("Segoe UI", Font.PLAIN, 16));
-            backBtn.setBackground(Color.LIGHT_GRAY);
-            backBtn.addActionListener(e -> cl.show(container, "home"));
-
-            JPanel topBar = new JPanel(new FlowLayout(FlowLayout.LEFT));
-            topBar.setOpaque(false);
-            topBar.add(backBtn);
-
-            add(topBar, BorderLayout.NORTH);
-            add(label, BorderLayout.CENTER);
-        }
-    } */
-    // Helper: Side bar Button
-    private JButton createSidebarButton(String text) {
-        JButton btn = new JButton(text);
-        btn.setMaximumSize(new Dimension(Integer.MAX_VALUE, 45));
-        btn.setFont(new Font("Segoe UI", Font.PLAIN, 16));
-        btn.setBackground(new Color(145, 85, 220));
-        btn.setForeground(Color.WHITE);
-        btn.setFocusPainted(false);
-        btn.setBorder(BorderFactory.createEmptyBorder(10, 25, 10, 25));
-        btn.setAlignmentX(Component.CENTER_ALIGNMENT);
-        return btn;
-    } 
+    
+ 
     // Helper: Stat Card (for Dash board home)
     private JPanel createStatCard(String title, String value) {
         JPanel card = new JPanel();
@@ -161,48 +263,26 @@ public class Dashboard extends JFrame {
         card.add(val);
         return card;
     }
+    private String getCountFromEntity(String entityName) {
+        try (Session session = HibernateUtil.getSessionFactory().openSession()) {
+            @SuppressWarnings("deprecation")
+			Long count = (Long) session.createQuery("SELECT COUNT(*) FROM " + entityName).uniqueResult();
+            return count.toString();
+        } catch (Exception e) {
+            e.printStackTrace();
+            return "N/A";
+        }
+    }
 
- // -- Example Panels for demo only ---
-    class ViewBooksPanel extends JPanel {
-        public ViewBooksPanel() {
-            setBackground(new Color(245, 245, 255));
-            setLayout(new BorderLayout());
-            JLabel label = new JLabel("View Books Table", JLabel.CENTER);
-            label.setFont(new Font("Segoe UI", Font.BOLD, 28));
-            add(label, BorderLayout.CENTER);
+    private String getTotalBorrowedQuantity() {
+        try (Session session = HibernateUtil.getSessionFactory().openSession()) {
+            Long totalBorrowed = (Long) session.createQuery("SELECT SUM(b.quantity) FROM Borrowing b").uniqueResult();
+            if (totalBorrowed == null) return "0";
+            return totalBorrowed.toString();
+        } catch (Exception e) {
+            e.printStackTrace();
+            return "N/A";
         }
     }
-    class AddStudentPanel extends JPanel {
-        public AddStudentPanel() {
-            setBackground(new Color(245, 245, 255));
-            setLayout(new BorderLayout());
-            JLabel label = new JLabel("Add Student Form", JLabel.CENTER);
-            label.setFont(new Font("Segoe UI", Font.BOLD, 28));
-            add(label, BorderLayout.CENTER);
-        }
-    }
-    class ViewStudentsPanel extends JPanel {
-        public ViewStudentsPanel() {
-            setBackground(new Color(245, 245, 255));
-            setLayout(new BorderLayout());
-            JLabel label = new JLabel("View Students Table", JLabel.CENTER);
-            label.setFont(new Font("Segoe UI", Font.BOLD, 28));
-            add(label, BorderLayout.CENTER);
-        }
-    }
-    class ManageStudentsPanel extends JPanel {
-        public ManageStudentsPanel() {
-            setBackground(new Color(245, 245, 255));
-            setLayout(new BorderLayout());
-            JLabel label = new JLabel("Manage Students Form", JLabel.CENTER);
-            label.setFont(new Font("Segoe UI", Font.BOLD, 28));
-            add(label, BorderLayout.CENTER);
-        }
-    }
-    
-    public static void main(String[] args) {
-        SwingUtilities.invokeLater(() -> {
-            new Dashboard().setVisible(true);
-        });
-    }
+          
 }
